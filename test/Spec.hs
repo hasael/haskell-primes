@@ -19,6 +19,16 @@ prop_nonPrimesAreComposite val = if result == Just False
     where result = isPrime val
           divisors = filter ( (==0) . (val `mod`)) [2 .. (val -1)]
 
+prop_factorsMakeOriginal val = if result == Nothing
+                                then True
+                                else product (fromJust result ) == val
+    where result = primeFactors val
+
+prop_allFactorsPrime val = if result == Nothing
+                            then True
+                            else all (== Just True) (map isPrime (fromJust result))
+    where result = primeFactors val
+
 main :: IO ()
 main = do
     putStrLn "Value only for valid input"
@@ -27,3 +37,7 @@ main = do
     quickCheckWith stdArgs { maxSuccess = 1000} prop_primesArePrime
     putStrLn "Negative cases are composite"
     quickCheckWith stdArgs { maxSuccess = 1000} prop_nonPrimesAreComposite
+    putStrLn "Factors product to original"
+    quickCheck prop_factorsMakeOriginal
+    putStrLn "All factors are prime"
+    quickCheck prop_allFactorsPrime
